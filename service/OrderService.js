@@ -72,10 +72,10 @@ router.get('/me', function(req, res) {
  * api_key String  (optional)
  * returns List
  **/
-exports.deleteOrder = function(orderId,api_key) {
+exports.deleteOrder = function(_id,api_key) {
   return new Promise(function(resolve, reject) {
     Order = mongoose.model('Order', 'Orders');
-    Order.deleteOne({ orderId: orderId  }).then(function(){ 
+    Order.deleteOne({ _id:_id  }).then(function(){ 
       console.log("Data deleted"); // Success 
       resolve();
   }).catch(function(error){ 
