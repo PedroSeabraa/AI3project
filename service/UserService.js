@@ -1,4 +1,5 @@
 'use strict';
+const jwt = require('jsonwebtoken');
 //meter esta ligacao noutra pagina e chamala com required
 const mongoose = require('mongoose');
 
@@ -26,8 +27,9 @@ exports.createUser = function(body) {
     .then(result => {
       if(result.length < 1) {
       User = mongoose.model('User', 'users');
+
+
       var NewUser = new User({
-    
     username: body.username,
     email: body.email,
     password: body.password,
@@ -41,12 +43,12 @@ exports.createUser = function(body) {
    .catch(error => {
      reject(error);
    });
-      }
+      } 
       else{
        reject(409);
        console.log("User already exists")
       }
-     
+    
 
     })
   })
@@ -135,26 +137,30 @@ exports.getUserByName = function(username) {
  * password String The password for login in clear text
  * returns String
  **/
-exports.loginUser = function(username, password) {
-  return new Promise(function(resolve) {
-    User = mongoose.model('User', 'users');
+exports.loginUser = function(body) {
+  return new Promise(function(resolve, reject) {
+   
        
-      
-    User.findOne({username:username, password:password}).then(function(error, username){
-      if(!username){
-        return resolve.status(404).send();
+    User.find({email: body.email, password: body.password}).then(function(err, email){
+       User = mongoose.model('User', 'users');
+      if(email == null){
+      reject(404);
       }
       else if(err) { 
         console.log(err);
-        return resolve.status(500).send();
+       reject(500);
       }
-      else{resolve();}
+      else{
+       // jwt.sign({_id: User._id}, SECRET,{ expiresIn:1200 }); 
+        resolve();}
 
     })
-      
-
   })
       }
+
+
+
+
 
 /**
  * Logs out current logged in user session
@@ -180,7 +186,7 @@ exports.logoutUser = function() {
 exports.updateUser = function(username,body) {
   return new Promise(function(resolve, reject) {
 
-    User.findOneAndUpdate({email:body.email}, { Name:body.Name, password:body.password, phone:body.phone }).then(function(){ 
+    User.findOneAndUpdate({username: username}, { email:body.email, password:body.password, phone:body.phone }).then(function(){ 
       console.log("Data updated"); // Success 
       resolve();
   }).catch(function(error){ 
